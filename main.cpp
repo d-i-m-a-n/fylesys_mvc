@@ -6,6 +6,25 @@
 #include <QString>
 #include <QDir>
 #include <QFileInfoList>
+#include <iostream>
+
+double computeDirectorySize(const QString &path)
+{
+    double dirSize = 0;
+    QDir directory(path);
+
+    QFileInfoList entryList = directory.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
+
+    for(auto &curItem : entryList)
+    {
+        if(curItem.isDir())
+            dirSize += computeDirectorySize(path + '/' +curItem.fileName());
+        else
+            dirSize += curItem.size();
+    }
+
+    return dirSize;
+}
 
 QList<std::pair<QString,double>> computeFilesSize(const QString &path)
 {
@@ -18,13 +37,18 @@ QList<std::pair<QString,double>> computeFilesSize(const QString &path)
         if(!directory.exists())
             throw QString("Directory does not exist");
 
-        QFileInfoList filesInfoList = directory.entryInfoList();
+        QFileInfoList filesInfoList = directory.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
 
-        double dirSize = QFileInfo(path).size();
+        double dirSize = computeDirectorySize(path);
 
-        for (QFileInfo &curFile : filesInfoList)
+        for (QFileInfo &curItem : filesInfoList)
         {
-            filesSizeList.push_back(std::pair<QString,double> (curFile.fileName(),curFile.size()/dirSize));
+            double itemSize;
+            if(curItem.isDir())
+                itemSize = computeDirectorySize(path + '/' + curItem.fileName());
+            else
+                itemSize = (double)curItem.size();
+            filesSizeList.push_back(std::pair<QString,double> (curItem.fileName(),itemSize/dirSize));
         }
     }
 
@@ -42,14 +66,14 @@ QList<std::pair<QString,double>> computeExtensionsSize(const QString &path)
         if(!directory.exists())
             throw QString("Directory does not exist");
 
-        QFileInfoList filesInfoList = directory.entryInfoList(QDir::Filter::Files);
+        QFileInfoList filesInfoList = directory.entryInfoList(QDir::Files);
 
-        QStringList dirList = directory.entryList(QDir::Filter::Dirs);
+        QStringList dirList = directory.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
         for(QString &curDir : dirList)
         {
-            filesInfoList += QDir(curDir).entryInfoList(QDir::Filter::Files);
-            dirList += QDir(curDir).entryList(QDir::Filter::Dirs);
+            filesInfoList += QDir(curDir).entryInfoList(QDir::Files);
+            dirList += QDir(curDir).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
         }
 
         double dirSize = QFileInfo(path).size();
@@ -81,11 +105,24 @@ QList<std::pair<QString,double>> computeExtensionsSize(const QString &path)
     return extensionsSizeList;
 }
 
-
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
+
+    QDir dir("D:/QT_projects/lab3/tests");
+    QFileInfoList fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+    for(auto &curDir : fileInfoList)
+    {
+        QList<std::pair<QString,double>> filesSize = computeFilesSize(curDir.absoluteFilePath());
+
+        std::cout << curDir.fileName().toStdString() << ":\n";
+        for(auto& curFile : filesSize)
+        {
+            std::cout << curFile.first.toStdString() << "  " << curFile.second << std::endl;
+        }
+        if(filesSize.isEmpty())
+            std::cout << "empty directory\n";
+    }
+
     return a.exec();
 }
