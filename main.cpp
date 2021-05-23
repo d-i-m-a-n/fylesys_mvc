@@ -8,6 +8,26 @@
 #include <QFileInfoList>
 #include <iostream>
 
+#include "entry.h"
+
+double computeDirFilesSize(const QString &path)
+{
+    double dirFilesSize = 0;
+    QDir directory(path);
+
+    QFileInfoList entryList = directory.entryInfoList(QDir::Files);
+
+    for(auto &curItem : entryList)
+    {
+        if(curItem.isDir())
+            dirFilesSize += computeDirFilesSize(path + '/' +curItem.fileName());
+        else
+            dirFilesSize += curItem.size();
+    }
+
+    return dirFilesSize;
+}
+
 double computeDirectorySize(const QString &path)
 {
     double dirSize = 0;
@@ -26,9 +46,9 @@ double computeDirectorySize(const QString &path)
     return dirSize;
 }
 
-QList<std::pair<QString,double>> computeFilesSize(const QString &path)
+QList<Entry> computeFilesSize(const QString &path)
 {
-    QList<std::pair<QString,double>> filesSizeList;
+    QList<Entry> filesSizeList;
 
     if(!path.isEmpty())
     {
@@ -37,27 +57,27 @@ QList<std::pair<QString,double>> computeFilesSize(const QString &path)
         if(!directory.exists())
             throw QString("Directory does not exist");
 
-        QFileInfoList filesInfoList = directory.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
+        QFileInfoList filesInfoList = directory.entryInfoList(QDir::AllDirs | QDir::NoDotAndDotDot);
 
         double dirSize = computeDirectorySize(path);
 
+        double itemSize;
+        itemSize = computeDirFilesSize(path);
+        filesSizeList.push_back(Entry("(Current directory)",itemSize/dirSize,itemSize));
+
         for (QFileInfo &curItem : filesInfoList)
         {
-            double itemSize;
-            if(curItem.isDir())
-                itemSize = computeDirectorySize(path + '/' + curItem.fileName());
-            else
-                itemSize = (double)curItem.size();
-            filesSizeList.push_back(std::pair<QString,double> (curItem.fileName(),itemSize/dirSize));
+            itemSize = computeDirFilesSize(path + '/' + curItem.fileName());
+            filesSizeList.push_back(Entry(curItem.fileName(),itemSize/dirSize,itemSize));
         }
     }
 
     return filesSizeList;
 }
 
-QList<std::pair<QString,double>> computeExtensionsSize(const QString &path)
+QList<Entry> computeExtensionsSize(const QString &path)
 {
-    QList<std::pair<QString,double>> extensionsSizeList;
+    QList<Entry> extensionsSizeList;
 
     if(!path.isEmpty())
     {
@@ -84,7 +104,7 @@ QList<std::pair<QString,double>> computeExtensionsSize(const QString &path)
         while(!filesInfoList.isEmpty())
         {
             curSuffix = filesInfoList.front().suffix();
-            extensionsSizeList.append(std::pair<QString,double>(curSuffix,0));
+            extensionsSizeList.append(Entry(curSuffix,0,0));
 
             iterFileInfo = filesInfoList.begin();
 
@@ -92,13 +112,13 @@ QList<std::pair<QString,double>> computeExtensionsSize(const QString &path)
             {
                 if(iterFileInfo->suffix() == curSuffix)
                 {
-                    extensionsSizeList.last().second += iterFileInfo->size();
+                    extensionsSizeList.last().m_size += iterFileInfo->size();
                     filesInfoList.erase(iterFileInfo);
                 }
                 else
                     iterFileInfo++;
             }
-            extensionsSizeList.last().second /= dirSize;
+            extensionsSizeList.last().m_sizePercent = extensionsSizeList.last().m_size / dirSize;
         }
     }
 
@@ -109,20 +129,24 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    QDir dir("D:/QT_projects/lab3/tests");
-    QFileInfoList fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-    for(auto &curDir : fileInfoList)
-    {
-        QList<std::pair<QString,double>> filesSize = computeFilesSize(curDir.absoluteFilePath());
+    MainWindow w;
 
-        std::cout << curDir.fileName().toStdString() << ":\n";
-        for(auto& curFile : filesSize)
-        {
-            std::cout << curFile.first.toStdString() << "  " << curFile.second << std::endl;
-        }
-        if(filesSize.isEmpty())
-            std::cout << "empty directory\n";
-    }
+
+    w.show();
+//    QDir dir("D:/QT_projects/lab3/tests");
+//    QFileInfoList fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+//    for(auto &curDir : fileInfoList)
+//    {
+//        QList<std::pair<QString,double>> filesSize = computeFilesSize(curDir.absoluteFilePath());
+
+//        std::cout << curDir.fileName().toStdString() << ":\n";
+//        for(auto& curFile : filesSize)
+//        {
+//            std::cout << curFile.first.toStdString() << "  " << curFile.second << std::endl;
+//        }
+//        if(filesSize.isEmpty())
+//            std::cout << "empty directory\n";
+//    }
 
     return a.exec();
 }
