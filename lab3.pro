@@ -18,17 +18,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     barchart.cpp \
+    computefilessizefunctions.cpp \
     entry.cpp \
     filesdatamodel.cpp \
     main.cpp \
     mainwindow.cpp \
+    pychart.cpp \
     pychart.cpp
 
 HEADERS += \
     barchart.h \
+    computefilessizefunctions.h \
     entry.h \
     filesdatamodel.h \
     mainwindow.h \
+    pychart.h \
     pychart.h
 
 FORMS += \

@@ -4,12 +4,17 @@
 #include <QMainWindow>
 #include <QFileSystemModel>
 #include <QList>
+#include <QAbstractItemView>
 
 
 #include "entry.h"
 
-class FilesDataModel;
+class QTableView;
 class QItemSelection;
+
+class PieChart;
+class BarChart;
+class FilesDataModel;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -19,9 +24,16 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 private slots:
-    void expanded();
+    void treeViewCollapsedOrExpanded();
+
+    void actionChanged(int action_id);
+
+    void displayTypeChanged(int display_id);
 
     void on_selectionChangedSlot(const QItemSelection &selected, const QItemSelection &deselected);
+
+signals:
+    void updateModel(QList<Entry> model);
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -30,15 +42,18 @@ public:
 private:
 
     QList<Entry> (*computeDataForModel)(const QString &path);
-    static double computeDirFilesSize(const QString &path);
-    static double computeDirectorySize(const QString &path);
-    static QList<Entry> computeFilesSize(const QString &path);
-    static QList<Entry> computeExtensionsSize(const QString &path);
 
     Ui::MainWindow *ui;
 
     FilesDataModel* filesModel;
     QFileSystemModel* dirModel;
+
+    QString currentDir;
+
     QWidget* view;
+    QTableView *tableView;
+    PieChart *pieChart;
+    BarChart *barChart;
+
 };
 #endif // MAINWINDOW_H

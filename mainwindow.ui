@@ -38,7 +38,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBox">
+       <widget class="QComboBox" name="comboBox_action">
         <item>
          <property name="text">
           <string>Group file size by folders</string>
@@ -59,7 +59,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBox_2">
+       <widget class="QComboBox" name="comboBox_display">
         <item>
          <property name="text">
           <string>List view</string>
@@ -95,9 +95,6 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
-       <widget class="QTableView" name="tableView"/>
-      </item>
-      <item>
        <widget class="QTreeView" name="treeView">
         <attribute name="headerVisible">
          <bool>false</bool>
@@ -120,6 +117,11 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <tabstops>
+  <tabstop>comboBox_action</tabstop>
+  <tabstop>comboBox_display</tabstop>
+  <tabstop>treeView</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -1,12 +1,13 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-
 #include <QItemSelectionModel>
 #include <QTableView>
 
 #include "pychart.h"
+#include "barchart.h"
 #include "filesdatamodel.h"
+#include "computefilessizefunctions.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -16,12 +17,17 @@ MainWindow::MainWindow(QWidget *parent)
 
     computeDataForModel = computeFilesSize;
 
-    filesModel = new FilesDataModel(this, computeFilesSize("D:/QT_projects/lab3/tests"));
+    currentDir = QDir::homePath();
 
-    ui->tableView->setModel(filesModel);
+    filesModel = new FilesDataModel(this, computeDataForModel(currentDir));
+    pieChart = new PieChart();
+    barChart = new BarChart();
 
+    tableView = new QTableView(this);
+    tableView->setModel(filesModel);
 
-    QItemSelectionModel *selectionModel = ui->treeView->selectionModel();
+    view = tableView;
+    ui->horizontalLayout_3->addWidget(view,2);
 
     dirModel = new QFileSystemModel(this);
     dirModel->setFilter(QDir::NoDotAndDotDot | QDir::AllDirs);
@@ -33,12 +39,25 @@ MainWindow::MainWindow(QWidget *parent)
     ui->treeView->hideColumn(3);
 
 
-    //connect(ui->treeView,SIGNAL(expanded()),this,SLOT(expanded()));
+    connect(ui->treeView,SIGNAL(expanded(const QModelIndex &)),this,SLOT(treeViewCollapsedOrExpanded()));
+    connect(ui->treeView,SIGNAL(collapsed(const QModelIndex &)),this,SLOT(treeViewCollapsedOrExpanded()));
+
+    connect(ui->comboBox_action,SIGNAL(currentIndexChanged(int)),this,SLOT(actionChanged(int)));
+    connect(ui->comboBox_display,SIGNAL(currentIndexChanged(int)),this,SLOT(displayTypeChanged(int)));
+
+    QItemSelectionModel *selectionModel = ui->treeView->selectionModel();
 
     connect(selectionModel, SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
             this, SLOT(on_selectionChangedSlot(const QItemSelection &, const QItemSelection &)));
 
-    //selectionModel->select(toggleSelection, QItemSelectionModel::Toggle);
+    QItemSelection toggleSelection;
+    QModelIndex topLeft;
+    QString homePath = QDir::homePath();
+    topLeft = dirModel->index(homePath);
+    dirModel->setRootPath(homePath);
+
+    toggleSelection.select(topLeft, topLeft);
+    selectionModel->select(toggleSelection, QItemSelectionModel::Toggle);
 }
 
 MainWindow::~MainWindow()
@@ -46,158 +65,60 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::expanded()
+void MainWindow::treeViewCollapsedOrExpanded()
 {
+    ui->treeView->resizeColumnToContents(0);
+}
 
+void MainWindow::actionChanged(int action_id)
+{
+    switch(action_id)
+    {
+    case 0:
+        computeDataForModel = computeFilesSize;
+        break;
+    case 1:
+        computeDataForModel = computeExtensionsSize;
+        break;
+    default:
+        return;
+    }
+
+    filesModel->updateModel(computeDataForModel(currentDir));
+    ui->treeView->update();
+}
+
+void MainWindow::displayTypeChanged(int display_id)
+{
+    view->hide();
+    switch (display_id)
+    {
+    case 0:
+        view = tableView;
+        break;
+    case 1:
+        view = pieChart;
+        break;
+    case 2:
+        view = barChart;
+        break;
+    }
+    view->show();
+    update();
 }
 
 void MainWindow::on_selectionChangedSlot(const QItemSelection &selected, const QItemSelection &deselected)
 {
-    //Q_UNUSED(selected);
     Q_UNUSED(deselected);
-    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
-    QModelIndexList indexs =  selected.indexes();
-    QString filePath = "";
 
-    // Размещаем инфо в statusbar относительно выделенного модельного индекса
+    QModelIndexList indexs =  selected.indexes();
 
     if (indexs.count() >= 1) {
         QModelIndex ix =  indexs.constFirst();
-        filePath = dirModel->filePath(ix);
-        this->statusBar()->showMessage("Выбранный путь : " + dirModel->filePath(indexs.constFirst()));
+        currentDir = dirModel->filePath(ix);
+        this->statusBar()->showMessage("Выбранный путь : " + currentDir);
     }
 
-    //TODO: !!!!!
-    /*
-    Тут простейшая обработка ширины первого столбца относительно длины названия папки.
-    Это для удобства, что бы при выборе папки имя полностью отображалась в  первом столбце.
-    Требуется доработка(переработка).
-    */
-//    int length = 200;
-//    int dx = 30;
-
-//    if (dirModel->fileName(index).length() * dx > length) {
-//        length = length + dirModel->fileName(index).length() * dx;
-//        qDebug() << "r = " << index.row() << "c = " << index.column() << dirModel->fileName(index) << dirModel->fileInfo(
-//                     index).size();
-
-//    }
-
-    //ui->treeView->header()->resizeSection(index.column(), length + dirModel->fileName(index).length());
-    //tableView->setRootIndex(fileModel->setRootPath(filePath));
-}
-
-double MainWindow::computeDirFilesSize(const QString &path)
-{
-    double dirFilesSize = 0;
-    QDir directory(path);
-
-    QFileInfoList entryList = directory.entryInfoList(QDir::Files);
-
-    for(auto &curItem : entryList)
-    {
-        if(curItem.isDir())
-            dirFilesSize += computeDirFilesSize(path + '/' +curItem.fileName());
-        else
-            dirFilesSize += curItem.size();
-    }
-
-    return dirFilesSize;
-}
-
-double MainWindow::computeDirectorySize(const QString &path)
-{
-    double dirSize = 0;
-    QDir directory(path);
-
-    QFileInfoList entryList = directory.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
-
-    for(auto &curItem : entryList)
-    {
-        if(curItem.isDir())
-            dirSize += computeDirectorySize(path + '/' +curItem.fileName());
-        else
-            dirSize += curItem.size();
-    }
-
-    return dirSize;
-}
-
-QList<Entry> MainWindow::computeFilesSize(const QString &path)
-{
-    QList<Entry> filesSizeList;
-
-    if(!path.isEmpty())
-    {
-        QDir directory(path);
-
-        if(!directory.exists())
-            throw QString("Directory does not exist");
-
-        QFileInfoList filesInfoList = directory.entryInfoList(QDir::AllDirs | QDir::NoDotAndDotDot);
-
-        double dirSize = computeDirectorySize(path);
-
-        double itemSize;
-        itemSize = computeDirFilesSize(path);
-        filesSizeList.push_back(Entry("(Current directory)",itemSize/dirSize,itemSize));
-
-        for (QFileInfo &curItem : filesInfoList)
-        {
-            itemSize = computeDirFilesSize(path + '/' + curItem.fileName());
-            filesSizeList.push_back(Entry(curItem.fileName(),itemSize/dirSize,itemSize));
-        }
-    }
-
-    return filesSizeList;
-}
-
-QList<Entry> MainWindow::computeExtensionsSize(const QString &path)
-{
-    QList<Entry> extensionsSizeList;
-
-    if(!path.isEmpty())
-    {
-        QDir directory(path);
-
-        if(!directory.exists())
-            throw QString("Directory does not exist");
-
-        QFileInfoList filesInfoList = directory.entryInfoList(QDir::Files);
-
-        QStringList dirList = directory.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-
-        for(QString &curDir : dirList)
-        {
-            filesInfoList += QDir(curDir).entryInfoList(QDir::Files);
-            dirList += QDir(curDir).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-        }
-
-        double dirSize = QFileInfo(path).size();
-
-        QFileInfoList::iterator iterFileInfo;
-        QString curSuffix;
-
-        while(!filesInfoList.isEmpty())
-        {
-            curSuffix = filesInfoList.front().suffix();
-            extensionsSizeList.append(Entry(curSuffix,0,0));
-
-            iterFileInfo = filesInfoList.begin();
-
-            while (iterFileInfo != filesInfoList.end())
-            {
-                if(iterFileInfo->suffix() == curSuffix)
-                {
-                    extensionsSizeList.last().m_size += iterFileInfo->size();
-                    filesInfoList.erase(iterFileInfo);
-                }
-                else
-                    iterFileInfo++;
-            }
-            extensionsSizeList.last().m_sizePercent = extensionsSizeList.last().m_size / dirSize;
-        }
-    }
-
-    return extensionsSizeList;
+    filesModel->updateModel(computeDataForModel(currentDir));
+    ui->treeView->update();
 }

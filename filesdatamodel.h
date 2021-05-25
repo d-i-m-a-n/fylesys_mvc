@@ -16,6 +16,7 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
+    void updateModel(QList<Entry> model);
 
 private:
 

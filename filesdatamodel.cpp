@@ -1,4 +1,7 @@
 #include "filesdatamodel.h"
+#include <cmath>
+
+#include "computefilessizefunctions.h"
 
 FilesDataModel::FilesDataModel(QObject *parent, QList<Entry> model) : QAbstractTableModel(parent)
 {
@@ -28,11 +31,11 @@ QVariant FilesDataModel::headerData(int section, Qt::Orientation orientation, in
 
     switch (section) {
     case NAME:
-        return trUtf8("Название");
+        return "Название";
     case SIZE:
-        return trUtf8("Размер");
+        return "Размер";
     case PERCENT:
-        return trUtf8("В процентах");
+        return "В процентах";
     }
     return QVariant();
 }
@@ -51,8 +54,15 @@ QVariant FilesDataModel::data(const QModelIndex &index, int role) const
         return m_model[index.row()].m_size;
     }
     else if (index.column() == 2) {
-        return m_model[index.row()].m_sizePercent;
+        if(m_model[index.row()].m_size == 0)
+            return 0;
+        if(m_model[index.row()].m_sizePercent*100 > 0.01)
+            return std::trunc(m_model[index.row()].m_sizePercent*10000)/100;
+        return "<0,01";
     }
 }
 
-
+void FilesDataModel::updateModel(QList<Entry> model)
+{
+    m_model = model;
+}
