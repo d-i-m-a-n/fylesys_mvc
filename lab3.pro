@@ -23,8 +23,8 @@ SOURCES += \
     filesdatamodel.cpp \
     main.cpp \
     mainwindow.cpp \
-    pychart.cpp \
-    pychart.cpp
+    myview.cpp \
+    piechart.cpp \
 
 HEADERS += \
     barchart.h \
@@ -32,8 +32,8 @@ HEADERS += \
     entry.h \
     filesdatamodel.h \
     mainwindow.h \
-    pychart.h \
-    pychart.h
+    myview.h \
+    piechart.h \
 
 FORMS += \
     mainwindow.ui
