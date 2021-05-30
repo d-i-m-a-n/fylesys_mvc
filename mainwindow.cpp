@@ -4,7 +4,8 @@
 #include <QItemSelectionModel>
 #include <QTableView>
 
-#include "pychart.h"
+#include "myview.h"
+#include "piechart.h"
 #include "barchart.h"
 #include "filesdatamodel.h"
 #include "computefilessizefunctions.h"
@@ -20,14 +21,22 @@ MainWindow::MainWindow(QWidget *parent)
     currentDir = QDir::homePath();
 
     filesModel = new FilesDataModel(this, computeDataForModel(currentDir));
-    pieChart = new PieChart();
-    barChart = new BarChart();
+    pieChart = new PieChart(this);
+    barChart = new BarChart(this);
 
     tableView = new QTableView(this);
     tableView->setModel(filesModel);
 
+    ui->horizontalLayout_3->addWidget(tableView,2);
+    ui->horizontalLayout_3->addWidget(barChart,2);
+    ui->horizontalLayout_3->addWidget(pieChart,2);
+
+    barChart->hide();
+    barChart->setModel(filesModel);
+    pieChart->hide();
+    pieChart->setModel(filesModel);
+
     view = tableView;
-    ui->horizontalLayout_3->addWidget(view,2);
 
     dirModel = new QFileSystemModel(this);
     dirModel->setFilter(QDir::NoDotAndDotDot | QDir::AllDirs);
@@ -49,15 +58,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(selectionModel, SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
             this, SLOT(on_selectionChangedSlot(const QItemSelection &, const QItemSelection &)));
-
-    QItemSelection toggleSelection;
-    QModelIndex topLeft;
-    QString homePath = QDir::homePath();
-    topLeft = dirModel->index(homePath);
-    dirModel->setRootPath(homePath);
-
-    toggleSelection.select(topLeft, topLeft);
-    selectionModel->select(toggleSelection, QItemSelectionModel::Toggle);
 }
 
 MainWindow::~MainWindow()
@@ -85,7 +85,7 @@ void MainWindow::actionChanged(int action_id)
     }
 
     filesModel->updateModel(computeDataForModel(currentDir));
-    ui->treeView->update();
+    view->update();
 }
 
 void MainWindow::displayTypeChanged(int display_id)
@@ -120,5 +120,5 @@ void MainWindow::on_selectionChangedSlot(const QItemSelection &selected, const Q
     }
 
     filesModel->updateModel(computeDataForModel(currentDir));
-    ui->treeView->update();
+    view->update();
 }

@@ -7,20 +7,21 @@
 
 class FilesDataModel;
 
-class myView : public QWidget
+class MyView : public QWidget
 {
     Q_OBJECT
 public:
-    myView(QWidget *parent);
+    MyView(QWidget *parent);
 
     void setModel(FilesDataModel *model_);
 
-private:
+protected:
 
-    //virtual void drawChart(QPainter &painter) = 0;
+    void changeColor(QPainter &painter, int color_id);
+
+    virtual void drawChart(QPainter &painter) = 0;
     void printLegend(QPainter &painter);
 
-    void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
     FilesDataModel *model;
@@ -28,7 +29,7 @@ private:
     QRect drawRect;
     QRect legendRect;
 
-    const int palet[12] = {Qt::red, Qt::blue, Qt::magenta, Qt::green, Qt::yellow, Qt::cyan, Qt::darkRed,
+    const QColor palet[12] = {Qt::red, Qt::blue, Qt::magenta, Qt::green, Qt::yellow, Qt::cyan, Qt::darkRed,
                            Qt::darkBlue, Qt::darkMagenta, Qt::darkYellow, Qt::darkGreen, Qt::darkCyan};
 
 };

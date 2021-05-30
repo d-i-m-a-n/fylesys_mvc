@@ -13,7 +13,6 @@ void BarChart::drawChart(QPainter &painter)
     int modelSize = model->rowCount(QModelIndex());
     for(int i = 0; i < modelSize; i++)
     {
-        //changeColor(painter, i % 12);
         painter.setPen(palet[i%12]);
         painter.setBrush(QBrush(palet[i%12],Qt::SolidPattern));
         double percent = model->data(model->index(i,2),Qt::DisplayRole).toDouble();

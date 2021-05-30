@@ -4,8 +4,6 @@
 #include <QMainWindow>
 #include <QFileSystemModel>
 #include <QList>
-#include <QAbstractItemView>
-
 
 #include "entry.h"
 
