@@ -47,17 +47,15 @@ QList<Entry> computeExtensionsSize(const QString &path)
 
         QFileInfoList dirList = directory.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
 
-        QFileInfoList::iterator iterFileInfo;
-        iterFileInfo = dirList.begin();
-        while(iterFileInfo != dirList.end())
+        for(int i = 0; i < dirList.size(); i++)
         {
-            filesInfoList += QDir(iterFileInfo->absoluteFilePath()).entryInfoList(QDir::Files);
-            dirList += QDir(iterFileInfo->absoluteFilePath()).entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-            iterFileInfo++;
+            filesInfoList += QDir(dirList[i].absoluteFilePath()).entryInfoList(QDir::Files);
+            dirList += QDir(dirList[i].absoluteFilePath()).entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
         }
 
         double dirSize = computeDirectorySize(path);
 
+        QFileInfoList::iterator iterFileInfo;
         QString curSuffix;
 
         while(!filesInfoList.isEmpty())
