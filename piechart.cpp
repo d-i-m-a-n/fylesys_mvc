@@ -10,6 +10,7 @@ PieChart::PieChart(QWidget *parent) : MyView(parent)
 
 void PieChart::drawChart(QPainter &painter)
 {
+    QAbstractItemModel *model = this->model();
     int modelSize = model->rowCount(QModelIndex());
     int startAngle = 0;
     int spanAngle = 0;

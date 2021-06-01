@@ -4,7 +4,7 @@
 
 #include "filesdatamodel.h"
 
-MyView::MyView(QWidget *parent) : QWidget(parent)
+MyView::MyView(QWidget *parent) : QTableView(parent)
 {
     this->setAutoFillBackground(true);
     this->setPalette(QPalette(QPalette::Background,Qt::white));
@@ -12,6 +12,7 @@ MyView::MyView(QWidget *parent) : QWidget(parent)
 
 void MyView::printLegend(QPainter &painter)
 {
+    QAbstractItemModel *model = this->model();
     int modelSize = model->rowCount(QModelIndex());
 
     for(int i = 0; i < modelSize; i++)
@@ -25,11 +26,6 @@ void MyView::printLegend(QPainter &painter)
         painter.setPen(Qt::black);
         painter.drawText(legendRect.x() + 20, legendRect.y() + 15 + 20*i,text);
     }
-}
-
-void MyView::setModel(FilesDataModel *model_)
-{
-    model = model_;
 }
 
 void MyView::resizeEvent(QResizeEvent *event)

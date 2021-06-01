@@ -2,18 +2,17 @@
 #define MYVIEW_H
 
 #include <QWidget>
+#include <QTableView>
 #include <QPainter>
 #include <QRect>
 
 class FilesDataModel;
 
-class MyView : public QWidget
+class MyView : public QTableView
 {
     Q_OBJECT
 public:
     MyView(QWidget *parent);
-
-    void setModel(FilesDataModel *model_);
 
 protected:
 
@@ -23,8 +22,6 @@ protected:
     void printLegend(QPainter &painter);
 
     void resizeEvent(QResizeEvent *event) override;
-
-    FilesDataModel *model;
 
     QRect drawRect;
     QRect legendRect;

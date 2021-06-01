@@ -10,6 +10,7 @@ BarChart::BarChart(QWidget *parent) : MyView(parent)
 
 void BarChart::drawChart(QPainter &painter)
 {
+    QAbstractItemModel *model = this->model();
     int modelSize = model->rowCount(QModelIndex());
     for(int i = 0; i < modelSize; i++)
     {

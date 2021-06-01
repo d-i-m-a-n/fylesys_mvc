@@ -85,7 +85,6 @@ void MainWindow::actionChanged(int action_id)
     }
 
     filesModel->updateModel(computeDataForModel(currentDir));
-    view->update();
 }
 
 void MainWindow::displayTypeChanged(int display_id)
@@ -104,7 +103,6 @@ void MainWindow::displayTypeChanged(int display_id)
         break;
     }
     view->show();
-    update();
 }
 
 void MainWindow::on_selectionChangedSlot(const QItemSelection &selected, const QItemSelection &deselected)
@@ -120,5 +118,4 @@ void MainWindow::on_selectionChangedSlot(const QItemSelection &selected, const Q
     }
 
     filesModel->updateModel(computeDataForModel(currentDir));
-    view->update();
 }

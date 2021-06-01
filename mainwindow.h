@@ -48,7 +48,7 @@ private:
 
     QString currentDir;
 
-    QWidget* view;
+    QTableView* view;
     QTableView *tableView;
     PieChart *pieChart;
     BarChart *barChart;
