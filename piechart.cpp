@@ -28,7 +28,7 @@ void PieChart::drawChart(QPainter &painter)
 void PieChart::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
-    QPainter painter(this);
+    QPainter painter(this->viewport());
 
     drawChart(painter);
     printLegend(painter);

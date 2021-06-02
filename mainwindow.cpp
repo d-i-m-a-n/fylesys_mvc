@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include <QItemSelectionModel>
+#include <QAbstractItemView>
 #include <QTableView>
 
 #include "myview.h"

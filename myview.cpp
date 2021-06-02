@@ -2,9 +2,7 @@
 
 #include <QResizeEvent>
 
-#include "filesdatamodel.h"
-
-MyView::MyView(QWidget *parent) : QTableView(parent)
+MyView::MyView(QWidget *parent) : QAbstractItemView(parent)
 {
     this->setAutoFillBackground(true);
     this->setPalette(QPalette(QPalette::Background,Qt::white));

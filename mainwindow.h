@@ -9,6 +9,7 @@
 
 class QTableView;
 class QItemSelection;
+class QAbstractItemView;
 
 class PieChart;
 class BarChart;
@@ -48,7 +49,7 @@ private:
 
     QString currentDir;
 
-    QTableView* view;
+    QAbstractItemView* view;
     QTableView *tableView;
     PieChart *pieChart;
     BarChart *barChart;

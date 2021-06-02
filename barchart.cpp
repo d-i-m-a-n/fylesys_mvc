@@ -25,7 +25,7 @@ void BarChart::drawChart(QPainter &painter)
 void BarChart::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
-    QPainter painter(this);
+    QPainter painter(this->viewport());
 
     drawChart(painter);
     printLegend(painter);
