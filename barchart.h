@@ -13,12 +13,6 @@ public:
 private:
 
     void drawChart(QPainter &painter) override;
-
-    void paintEvent(QPaintEvent *event) override;
-
-
-
-
 };
 
 #endif // BARCHART_H

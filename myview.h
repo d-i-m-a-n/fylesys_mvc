@@ -17,6 +17,8 @@ public:
 
 protected:
 
+    virtual void paintEvent(QPaintEvent *event) override;
+
     virtual int horizontalOffset() const override{return 0;}
     virtual bool isIndexHidden(const QModelIndex &index) const override{return  true;}
     virtual QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers) override{return QModelIndex();}

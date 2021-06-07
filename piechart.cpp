@@ -4,8 +4,6 @@
 
 PieChart::PieChart(QWidget *parent) : MyView(parent)
 {
-    this->setAutoFillBackground(true);
-    this->setPalette(QPalette(QPalette::Background,Qt::white));
 }
 
 void PieChart::drawChart(QPainter &painter)
@@ -23,13 +21,4 @@ void PieChart::drawChart(QPainter &painter)
         painter.drawPie(drawRect, startAngle, spanAngle);
         startAngle += spanAngle;
     }
-}
-
-void PieChart::paintEvent(QPaintEvent *event)
-{
-    Q_UNUSED(event);
-    QPainter painter(this->viewport());
-
-    drawChart(painter);
-    printLegend(painter);
 }

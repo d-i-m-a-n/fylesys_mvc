@@ -12,8 +12,6 @@ public:
 
 private:
 
-    void paintEvent(QPaintEvent *event) override;
-
     void drawChart(QPainter &painter) override;
 };
 

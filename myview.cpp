@@ -31,3 +31,12 @@ void MyView::resizeEvent(QResizeEvent *event)
     drawRect = QRect(5,5,(event->size().width()-15)*0.8,event->size().height()-10);
     legendRect = QRect(10 + drawRect.width(),5,(event->size().width()-15)*0.2,drawRect.height());
 }
+
+void MyView::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+    QPainter painter(this->viewport());
+
+    drawChart(painter);
+    printLegend(painter);
+}
